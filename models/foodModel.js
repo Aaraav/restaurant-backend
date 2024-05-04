@@ -18,8 +18,10 @@ const foodSchema = new mongoose.Schema({
     price:{
         type:Number,
         required:true
-    }
-   
+    },
+   url:{
+    type:String,
+   }
     
   });
 

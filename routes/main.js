@@ -8,14 +8,22 @@ const multer = require('multer');
 const upload = require('../multer');
 const nodemailer = require("nodemailer");
 const { response } = require('..');
-const redis=require('ioredis');
-const client = redis.createClient({
-    url: 'redis://red-coqu3tvsc6pc73dg5s30:6379', // Your Redis URL
-});
+// const redis=require('ioredis');
+// const client = redis.createClient({
+//     url: 'redis://red-coqu3tvsc6pc73dg5s30:6379', // Your Redis URL
+// });
 const axios = require('axios');
 const uniqid=require('uniqid');
 const secret = 'aaraav';
 const router = express.Router();
+
+const cloudinary=require('cloudinary').v2;
+
+cloudinary.config({
+    cloud_name:'dduprrzmb',
+    api_key:'752366272453693',
+    api_secret:'0W8EckvDgjyrI04JHQdxZn9KHEs'
+})
 
 // const merchantid='PGTESTPAYUAT';
 // const phonepa_url='https://api-preprod.phonepe.com/apis/pg-sandbox';
@@ -310,6 +318,24 @@ router.post('/uploadfood', upload.single('file'), async (req, res) => {
             price: price
         });
 
+        const x=0;
+        cloudinary.uploader.upload(req.file.path,async function(error, result) {
+            if (error) {
+                // Handle error
+                console.error('Cloudinary upload error:', error);
+                return res.status(500).json({ message: 'Failed to upload file', error: error.message });
+            }
+            // Handle successful upload
+            console.log('File uploaded to Cloudinary:', result);
+            console.log('Cloudinary URL:', result.secure_url);
+        console.log(result);
+        newFood.url=result.url;
+        await newFood.save();
+
+            // return res.json({ message: 'File uploaded successfully', result });
+
+        });
+         
         console.log(newFood);
         await newFood.save();
 
