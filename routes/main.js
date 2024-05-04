@@ -322,16 +322,16 @@ router.post('/uploadfood', upload.single('file'), async (req, res) => {
 
 router.get('/uploadfood', async (req, res) => {
     try {
-        const cache = await client.get('food');
-        if (cache) return res.json(JSON.parse(cache)); // Parse JSON string back into array of objects
+        // const cache = await client.get('food');
+        // if (cache) return res.json(JSON.parse(cache)); // Parse JSON string back into array of objects
         const food = await foodModel.find();
         if (!food || food.length === 0) {
             return res.status(404).json({ message: 'No uploaded food data available' });
         }
 
-        await client.set('food', JSON.stringify(food));
- // Convert array of objects to JSON string before storing
-        await client.expire('food', 60);
+//         await client.set('food', JSON.stringify(food));
+//  // Convert array of objects to JSON string before storing
+//         await client.expire('food', 60);
 
         res.status(200).json(food);
     } catch (error) {
