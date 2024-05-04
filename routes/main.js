@@ -9,7 +9,9 @@ const upload = require('../multer');
 const nodemailer = require("nodemailer");
 const { response } = require('..');
 const redis=require('ioredis');
-const client=new redis();
+const client = redis.createClient({
+    url: 'redis://red-coqu3tvsc6pc73dg5s30:6379', // Your Redis URL
+});
 const axios = require('axios');
 const uniqid=require('uniqid');
 const secret = 'aaraav';
