@@ -2,7 +2,7 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index2.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.js"
@@ -23,6 +23,8 @@
     "nodemailer": "^6.9.13",
     "nodemon": "^3.0.2",
     "sendotp": "^1.2.9",
+    "socket.io": "^3.1.2",
+    "socketio": "^1.0.0",
     "uniqid": "^5.4.0",
     "uuid": "^9.0.1"
   }
