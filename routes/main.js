@@ -130,6 +130,29 @@ router.get('/getorder', verifyToken, async (req, res) => {
     }
 });
 
+router.get('/getorder/:username', verifyToken, async (req, res) => {
+    try {
+        const username = req.user.username;
+        const x=req.params.username;
+
+        // Find the user with the given username
+        const user = await userModel.findOne({ username: x });
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Find orders associated with the user's ID
+        const orders = await orderModel.find({ user: user._id });
+
+        return res.json(orders);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred while fetching orders' });
+    }
+});
+
+
 
 
 router.get('/sendmail',verifyToken,async function(req,res){
