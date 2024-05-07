@@ -5,7 +5,9 @@ const app=express();
 const mainRoutes=require('./routes/main')
 
 const foodModel=require('./models/foodModel')
-app.use(cors());
+app.use(cors({
+    origin:'https://restaurantaaraav.netlify.app/'
+}));
 app.use(express.json());
 const bcyrpt=require('bcrypt');
 const jwt = require('jsonwebtoken');

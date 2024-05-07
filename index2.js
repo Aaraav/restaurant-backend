@@ -10,7 +10,7 @@ const server = http.createServer(app);
 // Enable CORS for both Express and Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: 'https://restaurantaaraav.netlify.app/',
     methods: ['GET', 'POST'],
     credentials: true,
   },
@@ -23,7 +23,7 @@ app.use(express.static('public'));
 
 // Middleware for CORS https://restaurantaaraav.netlify.app/
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: 'https://restaurantaaraav.netlify.app/',
   credentials: true,
 }));
 
