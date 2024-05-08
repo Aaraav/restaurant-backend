@@ -10,7 +10,7 @@ const server = http.createServer(app);
 // Enable CORS for both Express and Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: 'https://restaurantaaraav.netlify.app',
+    origin: 'http://localhost:3000',
     methods: ['GET', 'POST'],
     credentials: true,
   },
@@ -23,11 +23,12 @@ app.use(express.static('public'));
 
 // Middleware for CORS https://restaurantaaraav.netlify.app/
 app.use(cors({
-  origin: 'https://restaurantaaraav.netlify.app',
+  origin: 'http://localhost:3000',
   credentials: true,
 }));
 
 const usernameMap = {};
+let x=null;
 // Handle new socket connections
 io.on('connection', (socket) => {
   console.log(`New client connected with ${socket.id}`);
@@ -51,17 +52,17 @@ x=usernameMap[username];
   // Do something with the data here
 });
 
-socket.on('status',async ({ username, globalStatus, name,orderid ,id}) => {
+socket.on('status',async ({ username, globalStatus, name,orderid ,id,reason}) => {
   // const targetSocketId = usernameMap[username];
 // console.log(targetSocketId);
 // usernameMap[username]=socket.id;
   // Emit the 'stat' event to the target client using their socket ID
   // console.log(globalStatus);
   console.log('sended to',usernameMap[username]);
-  console.log('Emitting stat event:', { globalStatus, username,name, orderid });
+  console.log('Emitting stat event:', { globalStatus, username,name, orderid,reason });
 console.log("id",id);
 
-      io.to(id).emit("stat", { globalStatus, username, orderid });
+      io.to(id).emit("stat", { globalStatus, username, orderid,reason });
  
 })
 
