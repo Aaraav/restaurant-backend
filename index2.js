@@ -66,6 +66,23 @@ console.log("id",id);
  
 })
 
+// socket.on('chat', ({ chat, username, name }) => {
+//   console.log(`Received chat from ${username}: ${chat}`);
+  
+//   // Register the sender's username and socket ID if not already registered
+//   usernameMap[username] = socket.id;
+  
+//   // Check if the recipient (name) is registered in usernameMap
+//   if (!usernameMap[name]) {
+//     const recipientSocketId = usernameMap[name];
+//     console.log('recipientSocketId',recipientSocketId);
+//     io.to(recipientSocketId).emit('get', { chat, username });
+//       console.log(`Sent chat message from ${username} to ${name}: ${chat}`);
+//   } else {
+//       console.log(`Recipient ${name} not found in usernameMap`);
+//   }
+// });
+
 
 
   // Handle socket disconnection
