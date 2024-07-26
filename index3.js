@@ -23,7 +23,7 @@ app.use(express.static('public'));
 // https://urbangroove.netlify.app
 // Middleware for CORS https://restaurantaaraav.netlify.app/
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: 'https://urbangroove.netlify.app',
   credentials: true,
 }));
 
@@ -87,6 +87,7 @@ io.on('connection', (socket) => {
   // });
  socket.on('notification',async({chat, sender, receiver})=>{
   console.log(receiver);
+  
  io.to(usernameMap[receiver]).emit('noti', {
   title: 'New Message',
   sender:sender,
