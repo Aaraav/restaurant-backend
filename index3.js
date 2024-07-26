@@ -20,10 +20,10 @@ const PORT = process.env.PORT || 2000;
 
 // Middleware for serving static files
 app.use(express.static('public'));
-
+// https://urbangroove.netlify.app
 // Middleware for CORS https://restaurantaaraav.netlify.app/
 app.use(cors({
-  origin: 'https://urbangroove.netlify.app',
+  origin: 'http://localhost:3000',
   credentials: true,
 }));
 
@@ -70,7 +70,31 @@ io.on('connection', (socket) => {
     usernameMap[username]=socket.id;
     console.log('registerd user:',username);
   })
- 
+
+  // socket.on('notification', ({ sender, receiver, message }) => {
+  //   console.log(`Received notification from ${sender} to ${receiver}: ${message}`);
+  
+  //   // Get the socket ID of the receiver
+  //   const receiverSocketId = usernameMap[receiver];
+  
+  //   // Broadcast the notification to the receiver
+  //   if (receiverSocketId) {
+  //     io.to(receiverSocketId).emit('notification', {
+  //       sender,
+  //       message,
+  //     });
+  //   }
+  // });
+ socket.on('notification',async({chat, sender, receiver})=>{
+  console.log(receiver);
+ io.to(usernameMap[receiver]).emit('noti', {
+  title: 'New Message',
+  sender:sender,
+  receiver:receiver,
+  message: `You received a new message from ${sender}`,
+});
+console.log('notofication');
+ })
 
 socket.on('chat', async({ chat, sender, receiver }) => {
  console.log(`send chat from ${sender} to ${receiver}:`,chat)
@@ -82,9 +106,18 @@ socket.on('chat', async({ chat, sender, receiver }) => {
 });
 
 // Save the message to the database
-await newChatMessage.save();
 
  io.to(usernameMap[receiver]).emit('get',{chat,sender});
+ 
+//  io.to(usernameMap[receiver]).emit('notification', {
+//   title: 'New Message',
+//   sender:sender,
+//   receiver:receiver,
+//   message: `You received a new message from ${sender}`,
+// });
+
+await newChatMessage.save();
+
 });
 
 
