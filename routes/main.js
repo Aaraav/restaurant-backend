@@ -235,18 +235,18 @@ router.post('/signup', async function(req, res) {
        
       });
    
-        transporter.sendMail(info,(e,email)=>{
+        transporter.sendMail(info,async(e,email)=>{
             if(e) throw e;
             console.log('success');
             console.log(email);
             res.json(email);
+            await newUser.save();
 
                         
           })
 
 
     try {
-        await newUser.save();
         res.status(201).json({
             message: 'User registered successfully. Please check your email for the OTP.',
             success: true, // A success flag
@@ -266,7 +266,8 @@ router.post('/login', async function(req, res) {
     const { username, password } = req.body;
 
     try {
-        const user = await userModel.findOne({ username: username });
+        // Find user by username
+        const user = await userModel.findOne({ username: username }).lean(); // Use lean() for faster querying
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -281,13 +282,15 @@ router.post('/login', async function(req, res) {
             userId: user._id
         };
 
-        const token = jwt.sign(payload,secret );
+        const token = jwt.sign(payload, secret, { expiresIn: '1h' }); // Set an expiration for better security
         console.log(token);
+
         res.json({ token });
     } catch (error) {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 function verifyToken(req, res, next) {
     const token = req.headers.authorization;
@@ -431,5 +434,17 @@ router.post('/setorder', async (req, res) => {
 router.get('/menu', verifyToken, (req, res) => {
     res.send(200);
 });
+
+router.get('/allorders',async(req,res)=>{
+    try{
+    const orders = await orderModel.find({status:'Pending'});
+    res.json(orders);
+}
+
+    catch(e){
+        console.log(e);
+    }
+
+})
 
 module.exports = router;
