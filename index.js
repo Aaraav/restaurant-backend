@@ -6,9 +6,10 @@ const mainRoutes=require('./routes/main')
 
 const foodModel=require('./models/foodModel')
 app.use(cors({
-    origin: ['https://restaurent-mern-frontend.vercel.app/','http://localhost:3000'],
+    origin: '*',
     credentials: true,
-  }));app.use(express.json());
+  }));
+  app.use(express.json());
 const bcyrpt=require('bcrypt');
 const jwt = require('jsonwebtoken');
 app.use(express.static(path.join(__dirname, 'public')));
