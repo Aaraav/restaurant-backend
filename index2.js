@@ -23,7 +23,7 @@ app.use(express.static('public'));
 
 // Middleware for CORS https://restaurantaaraav.netlify.app/
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: 'https://restaurent-mern-frontend.vercel.app/',
   credentials: true,
 }));
 
