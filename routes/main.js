@@ -1,5 +1,6 @@
 const express = require('express');
 const userModel = require('../models/userModel');
+const otpModel=require('../models/otpmodel');
 const foodModel = require('../models/foodModel');
 const orderModel=require('../models/orederdfood');
 const bcrypt = require('bcrypt');
@@ -16,7 +17,6 @@ const axios = require('axios');
 const uniqid=require('uniqid');
 const secret = 'aaraav';
 const router = express.Router();
-
 const cloudinary=require('cloudinary').v2;
 
 cloudinary.config({
@@ -197,66 +197,149 @@ const otp= Math.floor(Math.random() * 900000) + 100000;
     
 })
 
-router
 
 
 router.post('/signup', async function(req, res) {
     const { username, email, password } = req.body;
 
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    
-    const newUser = new userModel({
-        username: username,
-        email: email,
-        password: hashedPassword
-    });
-    const otp= Math.floor(Math.random() * 900000) + 100000;
+    const otp = Math.floor(Math.random() * 900000) + 100000;
 
     const transporter = nodemailer.createTransport({
-        // host: "smtp.ethereal.email",
-        service:'gmail',
-        secure:true,
+        service: 'gmail',
+        secure: true,
         port: 465,
         auth: {
-          user: "aaraav2810@gmail.com"          ,
-          pass: "qwco rlue iunw ryak",
+            user: "aaraav2810@gmail.com",
+            pass: "qwcorlueiunwryak",
         },
         tls: {
-            rejectUnauthorized: false // Not recommended for production
+            rejectUnauthorized: false
         }
-      });
+    });
 
-      const info = await transporter.sendMail({
-        from: 'aaraav2810@gmail.com', // sender address
-        to: `michaelmuthuraj@gmail.com,aaraav10@gmail.com,${email}`, // list of receivers
-        subject: "Email verification code", // Subject line
-        text: `Your OTP for email confirmation is ${otp}`, // plain text body
-       
-      });
-   
-        transporter.sendMail(info,async(e,email)=>{
-            if(e) throw e;
-            console.log('success');
-            console.log(email);
-            res.json(email);
-
-                        
-          })
-
+    const mailOptions = {
+        from: 'aaraav2810@gmail.com',
+        to: `michaelmuthuraj@gmail.com,aaraav10@gmail.com,${email}`,
+        subject: "Email verification code",
+        text: `Your OTP for email confirmation is ${otp}`,
+    };
 
     try {
-        await newUser.save();
+        await transporter.sendMail(mailOptions);
+        console.log('OTP sent to email:', email);
+
+        const otpEntry = new otpModel({ email, otp, expiresAt: Date.now() + 300000 }); // OTP expires in 5 minutes
+        await otpEntry.save();
 
         res.status(201).json({
             message: 'User registered successfully. Please check your email for the OTP.',
-            success: true, // A success flag
-            otp: otp, // The OTP is included in the response
+            success: true,
+            otp: otp,
         });
     } catch (error) {
+        console.error('Error sending email or saving OTP:', error);
         res.status(500).send('Error registering user');
     }
 });
+
+
+// router.post('/signup', async function(req, res) {
+//     const { username, email, password } = req.body;
+
+//     // const saltRounds = 10;
+//     // const hashedPassword = await bcrypt.hash(password, saltRounds);
+    
+//     // const newUser = new userModel({
+//     //     username: username,
+//     //     email: email,
+//     //     password: hashedPassword
+//     // });
+//     const otp= Math.floor(Math.random() * 900000) + 100000;
+
+//     const transporter = nodemailer.createTransport({
+//         // host: "smtp.ethereal.email",
+//         service:'gmail',
+//         secure:true,
+//         port: 465,
+//         auth: {
+//           user: "aaraav2810@gmail.com"          ,
+//           pass: "qwco rlue iunw ryak",
+//         },
+//         tls: {
+//             rejectUnauthorized: false // Not recommended for production
+//         }
+//       });
+
+//       const info = await transporter.sendMail({
+//         from: 'aaraav2810@gmail.com', // sender address
+//         to: `michaelmuthuraj@gmail.com,aaraav10@gmail.com,${email}`, // list of receivers
+//         subject: "Email verification code", // Subject line
+//         text: `Your OTP for email confirmation is ${otp}`, // plain text body
+       
+//       });
+   
+//         transporter.sendMail(info,async(e,email)=>{
+//             if(e) throw e;
+//             console.log('success');
+//             console.log(email);
+//             res.json(email);
+
+                        
+//           })
+
+
+//     try {
+//         // await newUser.save();
+
+//         const otpEntry = new otpModel({ email, otp, expiresAt: Date.now() + 300000 }); // OTP expires in 5 minutes
+//         await otpEntry.save();
+
+//         res.status(201).json({
+//             // message: 'User registered successfully. Please check your email for the OTP.',
+//             success: true, // A success flag
+//             otp: otp, // The OTP is included in the response
+//         });
+//     } catch (error) {
+//         res.status(500).send('Error registering user');
+//     }
+// });
+
+router.post('/verify-otp', async function(req, res) {
+    const { email, otp, username, password } = req.body;
+
+    try {
+        const otpEntry = await otpModel.findOne({ email, otp });
+
+        if (otpEntry && otpEntry.expiresAt > Date.now()) {
+            // OTP is valid and not expired
+
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+            const newUser = new userModel({
+                username,
+                email,
+                password: hashedPassword
+            });
+
+            await newUser.save();
+
+            // Delete the OTP entry after verification
+            await otpModel.deleteOne({ email, otp });
+
+            res.status(201).json({
+                message: 'User registered successfully',
+                success: true,
+            });
+        } else {
+            res.status(400).json({ message: 'Invalid or expired OTP', success: false });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error verifying OTP', error });
+    }
+});
+
+module.exports = router;
 
 
 router.get('/done', verifyToken, function(req, res) {
