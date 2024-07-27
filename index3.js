@@ -92,6 +92,7 @@ io.on('connection', (socket) => {
   title: 'New Message',
   sender:sender,
   receiver:receiver,
+  chat:chat,
   message: `You received a new message from ${sender}`,
 });
 console.log('notofication');
