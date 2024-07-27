@@ -240,13 +240,14 @@ router.post('/signup', async function(req, res) {
             console.log('success');
             console.log(email);
             res.json(email);
-            await newUser.save();
 
                         
           })
 
 
     try {
+        await newUser.save();
+
         res.status(201).json({
             message: 'User registered successfully. Please check your email for the OTP.',
             success: true, // A success flag
