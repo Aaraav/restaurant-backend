@@ -162,39 +162,36 @@ const user=await userModel.findOne({username});
 const otp= Math.floor(Math.random() * 900000) + 100000;
 
     const transporter = nodemailer.createTransport({
-        // host: "smtp.ethereal.email",
         service:'gmail',
         secure:true,
         port: 465,
         auth: {
-          user: "aaraav2810@gmail.com"          ,
-          pass: "qwco rlue iunw ryak",
+          user: "aaraav2810@gmail.com",
+          pass: "qwcorlueiunwryak",
         },
         tls: {
-            rejectUnauthorized: false // Not recommended for production
-        }
+            rejectUnauthorized: false
+        },
+        // Add timeout settings for Render
+        connectionTimeout: 10000,
+        socketTimeout: 10000,
+        greetingTimeout: 10000
       });
 
-      const info = await transporter.sendMail({
-        from: 'aaraav2810@gmail.com', // sender address
-        to: `michaelmuthuraj@gmail.com,aaraav10@gmail.com,${user.email}`, // list of receivers
-        subject: "food order confirmation", // Subject line
-        text: `Your OTP for food confirmation is ${otp}`, // plain text body
-       
-      });
+      try {
+        const info = await transporter.sendMail({
+          from: 'aaraav2810@gmail.com',
+          to: `michaelmuthuraj@gmail.com,aaraav10@gmail.com,${user.email}`,
+          subject: "food order confirmation",
+          text: `Your OTP for food confirmation is ${otp}`,
+        });
    
-        transporter.sendMail(info,(e,email)=>{
-            if(e) throw e;
-            console.log('success');
-            console.log(email);
-            res.json(email);
-                        
-          })
-
-          return res.json(otp);
-
-    
-    
+        console.log('success');
+        return res.json({ success: true, otp });
+      } catch(error) {
+        console.error('Error sending email:', error);
+        return res.status(500).json({ error: 'Failed to send confirmation email' });
+      }
 })
 
 
@@ -214,7 +211,11 @@ router.post('/signup', async function(req, res) {
         },
         tls: {
             rejectUnauthorized: false
-        }
+        },
+        // Add timeout settings for Render
+        connectionTimeout: 10000,  // 10 seconds
+        socketTimeout: 10000,       // 10 seconds
+        greetingTimeout: 10000      // 10 seconds
     });
 
     const mailOptions = {
@@ -238,7 +239,7 @@ router.post('/signup', async function(req, res) {
         });
     } catch (error) {
         console.error('Error sending email or saving OTP:', error);
-        res.status(500).send('Error registering user');
+        res.status(500).json({ error: 'Error registering user. Please try again.' });
     }
 });
 
